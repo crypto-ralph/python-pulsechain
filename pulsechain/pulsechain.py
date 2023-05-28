@@ -101,14 +101,11 @@ def get_token_list(address):
 
     :param address: The PulseChain address to fetch the tokens for.
     :type address: str
-    :return: A dictionary representing the JSON response from the API, which includes a list of owned tokens.
+    :return: A dictionary representing the JSON response from the API,
+             which includes a list of owned tokens.
     :rtype: Dict[str, Any]
     """
-    params = {
-        'module': 'account',
-        'action': 'tokenlist',
-        'address': address
-    }
+    params = {"module": "account", "action": "tokenlist", "address": address}
 
     # Make the API request and get the response
     response = requests.get(API_URL, params=params, timeout=10)
