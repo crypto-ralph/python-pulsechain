@@ -1,3 +1,10 @@
+"""
+utils.py
+
+This module provides helper functions.
+"""
+
+
 def add_decimal_sign(string: str, decimal_places: int = 18) -> str:
     """
     Insert a dot into a string at a specific position from the right.

@@ -1,5 +1,11 @@
-import requests
+"""
+pulsechain_api.py
+
+This module provides a Python interface for interacting with the PulseChain explorer API.
+"""
 from typing import Any, Dict, List
+import requests
+
 
 API_URL = "https://scan.pulsechain.com/api"
 
