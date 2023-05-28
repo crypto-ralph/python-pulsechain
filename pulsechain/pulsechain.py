@@ -95,6 +95,27 @@ def get_pending_transactions(
     return data
 
 
+def get_token_list(address):
+    """
+    Fetch the list of tokens owned by a given address on PulseChain.
+
+    :param address: The PulseChain address to fetch the tokens for.
+    :type address: str
+    :return: A dictionary representing the JSON response from the API, which includes a list of owned tokens.
+    :rtype: Dict[str, Any]
+    """
+    params = {
+        'module': 'account',
+        'action': 'tokenlist',
+        'address': address
+    }
+
+    # Make the API request and get the response
+    response = requests.get(API_URL, params=params, timeout=10)
+    data = response.json()
+    return data
+
+
 def get_token_balance(contract_address: str, address: str) -> Dict[str, Any]:
     """
     Fetch the token balance for a given address and contract.
