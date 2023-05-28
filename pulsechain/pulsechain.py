@@ -23,7 +23,7 @@ def get_eth_balance(address: str) -> Dict[str, Any]:
     :rtype: Dict[str, Any]
     """
     params = {"module": "account", "action": "eth_get_balance", "address": address}
-    response = requests.get(API_URL, params=params)
+    response = requests.get(API_URL, params=params, timeout=10)
     data = response.json()
     return data
 
@@ -38,7 +38,7 @@ def get_balance(address: str) -> Dict[str, Any]:
     :rtype: Dict[str, Any]
     """
     params = {"module": "account", "action": "balance", "address": address}
-    response = requests.get(API_URL, params=params)
+    response = requests.get(API_URL, params=params, timeout=10)
     data = response.json()
     return data
 
@@ -61,7 +61,7 @@ def get_balances_multi(addresses: List[str]) -> Dict[str, Any]:
         "action": "balancemulti",
         "address": ",".join(addresses),
     }
-    response = requests.get(API_URL, params=params)
+    response = requests.get(API_URL, params=params, timeout=10)
     data = response.json()
     return data
 
@@ -90,7 +90,7 @@ def get_pending_transactions(
     if page is not None and offset is not None:
         params.update({"page": page, "offset": offset})
 
-    response = requests.get(API_URL, params=params)
+    response = requests.get(API_URL, params=params, timeout=10)
     data = response.json()
     return data
 
@@ -112,7 +112,7 @@ def get_token_balance(contract_address: str, address: str) -> Dict[str, Any]:
         "contractaddress": contract_address,
         "address": address,
     }
-    response = requests.get(API_URL, params=params)
+    response = requests.get(API_URL, params=params, timeout=10)
     data = response.json()
     return data
 
@@ -135,7 +135,7 @@ def get_token(contract_address: str) -> Dict[str, Any]:
         "contractaddress": contract_address,
     }
 
-    response = requests.get(API_URL, params=params)
+    response = requests.get(API_URL, params=params, timeout=10)
     data = response.json()
     return data
 
@@ -163,7 +163,7 @@ def get_token_holders(
         "offset": offset,
     }
 
-    response = requests.get(API_URL, params=params)
+    response = requests.get(API_URL, params=params, timeout=10)
     data = response.json()
     return data
 
@@ -191,6 +191,6 @@ def get_transaction_info(txhash: str, index: int = None) -> Dict[str, Any]:
     if index is not None:
         params["index"] = index
 
-    response = requests.get(API_URL, params=params)
+    response = requests.get(API_URL, params=params, timeout=10)
     data = response.json()
     return data
