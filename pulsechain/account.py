@@ -1,7 +1,8 @@
 """
 account.py
 
-This module provides a Python interface for interacting with  account part of the PulseChain explorer API.
+This module provides a Python interface for interacting
+with account part of the PulseChain explorer API.
 """
 from typing import Dict, Any, List
 

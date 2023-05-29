@@ -1,7 +1,8 @@
 """
 transaction.py
 
-This module provides a Python interface for interacting with  transaction part of the PulseChain explorer API.
+This module provides a Python interface for interacting
+with transaction part of the PulseChain explorer API.
 """
 from typing import Dict, Any
 
@@ -40,7 +41,8 @@ def get_transaction_receipt_status(txhash):
 
     :param txhash: The transaction hash to fetch the receipt status for.
     :type txhash: str
-    :return: A dictionary representing the JSON response from the API, which includes the transaction receipt status.
+    :return: A dictionary representing the JSON response from the API,
+             which includes the transaction receipt status.
     :rtype: dict
     """
     base_url = 'https://scan.pulsechain.com/api'
@@ -51,5 +53,5 @@ def get_transaction_receipt_status(txhash):
         'txhash': txhash
     }
 
-    response = requests.get(base_url, params=params)
+    response = requests.get(base_url, params=params, timeout=10)
     return response.json()
