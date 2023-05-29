@@ -3,6 +3,13 @@ account.py
 
 This module provides a Python interface for interacting with  account part of the PulseChain explorer API.
 """
+from typing import Dict, Any, List
+
+import requests
+
+from pulsechain import API_URL
+
+
 def get_eth_balance(address: str) -> Dict[str, Any]:
     """
     Fetch the Ethereum balance for a given address.
