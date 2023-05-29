@@ -1,0 +1,1 @@
+API_URL = "https://scan.pulsechain.com/api"
