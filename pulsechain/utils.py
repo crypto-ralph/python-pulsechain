@@ -17,3 +17,10 @@ def add_decimal_sign(string: str, decimal_places: int = 18) -> str:
     :rtype: str
     """
     return string[:-decimal_places] + "." + string[-decimal_places:]
+
+
+def check_result(response):
+    if response["message"] == "OK":
+        return response["result"]
+    else:
+        raise Exception(response["message"])

@@ -9,6 +9,7 @@ from typing import Dict, Any, List
 import requests
 
 from pulsechain import API_URL
+from pulsechain.utils import check_result
 
 
 def get_eth_balance(address: str) -> Dict[str, Any]:
@@ -23,7 +24,7 @@ def get_eth_balance(address: str) -> Dict[str, Any]:
     params = {"module": "account", "action": "eth_get_balance", "address": address}
     response = requests.get(API_URL, params=params, timeout=10)
     data = response.json()
-    return data
+    return check_result(data)
 
 
 def get_balance(address: str) -> Dict[str, Any]:
@@ -38,7 +39,7 @@ def get_balance(address: str) -> Dict[str, Any]:
     params = {"module": "account", "action": "balance", "address": address}
     response = requests.get(API_URL, params=params, timeout=10)
     data = response.json()
-    return data
+    return check_result(data)
 
 
 def get_balances_multi(addresses: List[str]) -> Dict[str, Any]:
@@ -61,11 +62,11 @@ def get_balances_multi(addresses: List[str]) -> Dict[str, Any]:
     }
     response = requests.get(API_URL, params=params, timeout=10)
     data = response.json()
-    return data
+    return check_result(data)
 
 
 def get_pending_transactions(
-    address: str, page: int = None, offset: int = None
+        address: str, page: int = None, offset: int = None
 ) -> Dict[str, Any]:
     """
     Fetch the pending transactions for a given address.
@@ -90,7 +91,84 @@ def get_pending_transactions(
 
     response = requests.get(API_URL, params=params, timeout=10)
     data = response.json()
-    return data
+    return check_result(data)
+
+
+def get_transactions(address, sort=None, start_block=None, end_block=None, page=None, offset=None, filter_by=None,
+                     start_timestamp=None, end_timestamp=None):
+    """
+    Fetches a list of transactions for a given address from the PulseChain API.
+
+    :param address: A 160-bit code used for identifying Accounts. (required)
+    :type address: str
+    :param sort: A string representing the order by block number direction. Defaults to descending order.
+                 Available values: asc, desc
+    :type sort: str, optional
+    :param start_block: A nonnegative integer that represents the starting block number.
+    :type start_block: int, optional
+    :param end_block: A nonnegative integer that represents the ending block number.
+    :type end_block: int, optional
+    :param page: A nonnegative integer that represents the page number to be used for pagination. '
+                 offset' must be provided in conjunction.
+    :type page: int, optional
+    :param offset: A nonnegative integer that represents the maximum number of records to return when paginating.
+                   'page' must be provided in conjunction.
+    :type offset: int, optional
+    :param filter_by: A string representing the field to filter by. If none is given it returns transactions
+                      that match to, from, or contract address. Available values: to, from
+    :type filter_by: str, optional
+    :param start_timestamp: Represents the starting block timestamp.
+    :type start_timestamp: int, optional
+    :param end_timestamp: Represents the ending block timestamp.
+    :type end_timestamp: int, optional
+
+    :return: JSON response from the API call.
+    :rtype: dict
+    """
+
+    if not address:
+        raise ValueError("The 'address' parameter is required")
+
+    if sort and sort not in ['asc', 'desc']:
+        raise ValueError("The 'sort' parameter must be either 'asc' or 'desc'")
+
+    if start_block is not None and start_block < 0:
+        raise ValueError("The 'start_block' parameter must be a nonnegative integer")
+
+    if end_block is not None and end_block < 0:
+        raise ValueError("The 'end_block' parameter must be a nonnegative integer")
+
+    if page is not None and page < 0:
+        raise ValueError("The 'page' parameter must be a nonnegative integer")
+
+    if offset is not None and offset < 0:
+        raise ValueError("The 'offset' parameter must be a nonnegative integer")
+
+    if filter_by and filter_by not in ['to', 'from']:
+        raise ValueError("The 'filter_by' parameter must be either 'to', 'from', or None")
+
+    if start_timestamp is not None and start_timestamp < 0:
+        raise ValueError("The 'start_timestamp' parameter must be a nonnegative integer")
+
+    if end_timestamp is not None and end_timestamp < 0:
+        raise ValueError("The 'end_timestamp' parameter must be a nonnegative integer")
+
+    params = {
+        'module': 'account',
+        'action': 'txlist',
+        'address': address,
+        'sort': sort,
+        'start_block': start_block,
+        'end_block': end_block,
+        'page': page,
+        'offset': offset,
+        'filter_by': filter_by,
+        'start_timestamp': start_timestamp,
+        'end_timestamp': end_timestamp
+    }
+    response = requests.get(API_URL, params=params, timeout=10)
+    data = response.json()
+    return check_result(data)
 
 
 def get_token_list(address):
@@ -108,7 +186,7 @@ def get_token_list(address):
     # Make the API request and get the response
     response = requests.get(API_URL, params=params, timeout=10)
     data = response.json()
-    return data
+    return check_result(data)
 
 
 def get_token_balance(contract_address: str, address: str) -> Dict[str, Any]:
@@ -130,4 +208,4 @@ def get_token_balance(contract_address: str, address: str) -> Dict[str, Any]:
     }
     response = requests.get(API_URL, params=params, timeout=10)
     data = response.json()
-    return data
+    return check_result(data)
