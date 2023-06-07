@@ -12,6 +12,7 @@ from pulsechain import API_URL
 from pulsechain.utils import check_result
 
 
+# pylint: disable=too-many-arguments
 def get_eth_balance(address: str) -> Dict[str, Any]:
     """
     Fetch the Ethereum balance for a given address.
@@ -91,7 +92,7 @@ def get_pending_transactions(
 
 
 def get_transactions(address, sort=None, start_block=None, end_block=None, page=None, offset=None, filter_by=None,
-                     start_timestamp=None, end_timestamp=None):  # pylint: disable=too-many-arguments
+                     start_timestamp=None, end_timestamp=None):
     """
     Fetches a list of transactions for a given address from the PulseChain API.
 
