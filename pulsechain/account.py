@@ -91,7 +91,7 @@ def get_pending_transactions(
 
 
 def get_transactions(address, sort=None, start_block=None, end_block=None, page=None, offset=None, filter_by=None,
-                     start_timestamp=None, end_timestamp=None):  # pylint: disable-msg=too-many-arguments
+                     start_timestamp=None, end_timestamp=None):  # pylint: disable=too-many-arguments
     """
     Fetches a list of transactions for a given address from the PulseChain API.
 
