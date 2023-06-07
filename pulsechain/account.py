@@ -23,8 +23,7 @@ def get_eth_balance(address: str) -> Dict[str, Any]:
     """
     params = {"module": "account", "action": "eth_get_balance", "address": address}
     response = requests.get(API_URL, params=params, timeout=10)
-    data = response.json()
-    return check_result(data)
+    return check_result(response.json())
 
 
 def get_balance(address: str) -> Dict[str, Any]:
@@ -38,8 +37,7 @@ def get_balance(address: str) -> Dict[str, Any]:
     """
     params = {"module": "account", "action": "balance", "address": address}
     response = requests.get(API_URL, params=params, timeout=10)
-    data = response.json()
-    return check_result(data)
+    return check_result(response.json())
 
 
 def get_balances_multi(addresses: List[str]) -> Dict[str, Any]:
@@ -61,8 +59,7 @@ def get_balances_multi(addresses: List[str]) -> Dict[str, Any]:
         "address": ",".join(addresses),
     }
     response = requests.get(API_URL, params=params, timeout=10)
-    data = response.json()
-    return check_result(data)
+    return check_result(response.json())
 
 
 def get_pending_transactions(
@@ -90,12 +87,11 @@ def get_pending_transactions(
         params.update({"page": page, "offset": offset})
 
     response = requests.get(API_URL, params=params, timeout=10)
-    data = response.json()
-    return check_result(data)
+    return check_result(response.json())
 
 
 def get_transactions(address, sort=None, start_block=None, end_block=None, page=None, offset=None, filter_by=None,
-                     start_timestamp=None, end_timestamp=None):  # pylint: disable-msg=line-too-long
+                     start_timestamp=None, end_timestamp=None):  # pylint: disable-msg=too-many-arguments
     """
     Fetches a list of transactions for a given address from the PulseChain API.
 
@@ -167,8 +163,7 @@ def get_transactions(address, sort=None, start_block=None, end_block=None, page=
         'end_timestamp': end_timestamp
     }
     response = requests.get(API_URL, params=params, timeout=10)
-    data = response.json()
-    return check_result(data)
+    return check_result(response.json())
 
 
 def get_token_list(address):
@@ -185,8 +180,7 @@ def get_token_list(address):
 
     # Make the API request and get the response
     response = requests.get(API_URL, params=params, timeout=10)
-    data = response.json()
-    return check_result(data)
+    return check_result(response.json())
 
 
 def get_token_balance(contract_address: str, address: str) -> Dict[str, Any]:
@@ -207,5 +201,4 @@ def get_token_balance(contract_address: str, address: str) -> Dict[str, Any]:
         "address": address,
     }
     response = requests.get(API_URL, params=params, timeout=10)
-    data = response.json()
-    return check_result(data)
+    return check_result(response.json())

@@ -9,6 +9,7 @@ from typing import Dict, Any
 import requests
 
 from pulsechain import API_URL
+from pulsechain.utils import check_result
 
 
 def get_token(contract_address: str) -> Dict[str, Any]:
@@ -27,8 +28,7 @@ def get_token(contract_address: str) -> Dict[str, Any]:
     }
 
     response = requests.get(API_URL, params=params, timeout=10)
-    data = response.json()
-    return data
+    return check_result(response.json())
 
 
 def get_token_holders(
@@ -55,5 +55,4 @@ def get_token_holders(
     }
 
     response = requests.get(API_URL, params=params, timeout=10)
-    data = response.json()
-    return data
+    return check_result(response.json())

@@ -9,6 +9,7 @@ from typing import Dict, Any
 import requests
 
 from pulsechain import API_URL
+from pulsechain.utils import check_result
 
 
 def get_transaction_info(txhash: str, index: int = None) -> Dict[str, Any]:
@@ -32,7 +33,7 @@ def get_transaction_info(txhash: str, index: int = None) -> Dict[str, Any]:
         params["index"] = index
 
     response = requests.get(API_URL, params=params, timeout=10)
-    return response.json()
+    return check_result(response.json())
 
 
 def get_transaction_receipt_status(txhash):
@@ -54,4 +55,4 @@ def get_transaction_receipt_status(txhash):
     }
 
     response = requests.get(base_url, params=params, timeout=10)
-    return response.json()
+    return check_result(response.json())
