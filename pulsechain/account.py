@@ -4,7 +4,7 @@ account.py
 This module provides a Python interface for interacting
 with account part of the PulseChain explorer API.
 """
-from typing import Dict, Any, List
+from typing import Any
 
 import requests
 
@@ -13,42 +13,36 @@ from pulsechain.utils import check_result
 
 
 # pylint: disable=too-many-arguments
-def get_eth_balance(address: str) -> Dict[str, Any]:
+def get_eth_balance(address: str) -> dict[str, Any]:
     """
     Fetch the Ethereum balance for a given address.
 
     :param address: The address to fetch the Ethereum balance for.
-    :type address: str
     :return: A dictionary containing the response from the API.
-    :rtype: Dict[str, Any]
     """
     params = {"module": "account", "action": "eth_get_balance", "address": address}
     response = requests.get(API_URL, params=params, timeout=10)
     return check_result(response.json())
 
 
-def get_balance(address: str) -> Dict[str, Any]:
+def get_balance(address: str) -> dict[str, Any]:
     """
     Fetch the balance for a given address.
 
     :param address: The address to fetch the balance for.
-    :type address: str
     :return: A dictionary containing the response from the API.
-    :rtype: Dict[str, Any]
     """
     params = {"module": "account", "action": "balance", "address": address}
     response = requests.get(API_URL, params=params, timeout=10)
     return check_result(response.json())
 
 
-def get_balances_multi(addresses: List[str]) -> Dict[str, Any]:
+def get_balances_multi(addresses: list[str]) -> dict[str, Any]:
     """
     Fetch the balances for multiple addresses.
 
     :param addresses: The list of addresses to fetch the balances for. Maximum of 20 addresses.
-    :type addresses: List[str]
     :return: A dictionary containing the response from the API.
-    :rtype: Dict[str, Any]
     :raises ValueError: If more than 20 addresses are provided.
     """
     if len(addresses) > 20:
@@ -65,18 +59,14 @@ def get_balances_multi(addresses: List[str]) -> Dict[str, Any]:
 
 def get_pending_transactions(
         address: str, page: int = None, offset: int = None
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Fetch the pending transactions for a given address.
 
     :param address: The address to fetch the pending transactions for.
-    :type address: str
     :param page: The page number to be used for pagination.
-    :type page: int, optional
     :param offset: The maximum number of records to return when paginating.
-    :type offset: int, optional
     :return: A dictionary containing the response from the API.
-    :rtype: Dict[str, Any]
     :raises ValueError: If either 'page' or 'offset' is provided, but not both.
     """
     if (page is None and offset is not None) or (page is not None and offset is None):
@@ -92,35 +82,24 @@ def get_pending_transactions(
 
 
 def get_transactions(address, sort=None, start_block=None, end_block=None, page=None, offset=None, filter_by=None,
-                     start_timestamp=None, end_timestamp=None):
+                     start_timestamp=None, end_timestamp=None) -> dict[str, Any]:
     """
     Fetches a list of transactions for a given address from the PulseChain API.
 
     :param address: A 160-bit code used for identifying Accounts. (required)
-    :type address: str
     :param sort: A string representing the order by block number direction. Defaults to descending order.
                  Available values: asc, desc
-    :type sort: str, optional
     :param start_block: A nonnegative integer that represents the starting block number.
-    :type start_block: int, optional
     :param end_block: A nonnegative integer that represents the ending block number.
-    :type end_block: int, optional
     :param page: A nonnegative integer that represents the page number to be used for pagination. '
                  offset' must be provided in conjunction.
-    :type page: int, optional
     :param offset: A nonnegative integer that represents the maximum number of records to return when paginating.
                    'page' must be provided in conjunction.
-    :type offset: int, optional
     :param filter_by: A string representing the field to filter by. If none is given it returns transactions
                       that match to, from, or contract address. Available values: to, from
-    :type filter_by: str, optional
     :param start_timestamp: Represents the starting block timestamp.
-    :type start_timestamp: int, optional
     :param end_timestamp: Represents the ending block timestamp.
-    :type end_timestamp: int, optional
-
     :return: JSON response from the API call.
-    :rtype: dict
     """
 
     if not address:
@@ -167,7 +146,7 @@ def get_transactions(address, sort=None, start_block=None, end_block=None, page=
     return check_result(response.json())
 
 
-def get_token_list(address):
+def get_token_list(address) -> dict[str, Any]:
     """
     Fetch the list of tokens owned by a given address on PulseChain.
 
@@ -175,7 +154,6 @@ def get_token_list(address):
     :type address: str
     :return: A dictionary representing the JSON response from the API,
              which includes a list of owned tokens.
-    :rtype: Dict[str, Any]
     """
     params = {"module": "account", "action": "tokenlist", "address": address}
 
@@ -184,7 +162,7 @@ def get_token_list(address):
     return check_result(response.json())
 
 
-def get_token_balance(contract_address: str, address: str) -> Dict[str, Any]:
+def get_token_balance(contract_address: str, address: str) -> dict[str, Any]:
     """
     Fetch the token balance for a given address and contract.
 
@@ -193,7 +171,6 @@ def get_token_balance(contract_address: str, address: str) -> Dict[str, Any]:
     :param address: The address to fetch the token balance for.
     :type address: str
     :return: A dictionary containing the response from the API.
-    :rtype: Dict[str, Any]
     """
     params = {
         "module": "account",
