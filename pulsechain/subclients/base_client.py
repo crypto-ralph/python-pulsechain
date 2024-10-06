@@ -1,14 +1,18 @@
+"""
+Base class for subclients.
+All subclients must inherit SubpathClient.
+"""
 from abc import ABC, abstractmethod
 
 import httpx
 
 from pulsechain.exceptions import (
-    PulseChainTimeoutException,
-    PulseChainServerError,
-    PulseChainUnprocessableEntityException,
-    PulseChainUnknownException,
-    PulseChainBadRequestException,
     PulseChainBadParamException,
+    PulseChainBadRequestException,
+    PulseChainServerError,
+    PulseChainTimeoutException,
+    PulseChainUnknownException,
+    PulseChainUnprocessableEntityException,
 )
 
 

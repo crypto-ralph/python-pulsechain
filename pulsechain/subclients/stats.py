@@ -1,16 +1,9 @@
-from pulsechain.subclients.base_client import BaseClient
+from pulsechain.subclients.base_client import SubpathClient
 
 
-class StatsClient(BaseClient):
+class StatsClient(SubpathClient):
     def __init__(self):
-        super().__init__()
-        self.subpath = "stats"
-
-    def _explorer_get_request(
-        self, path: str | None = None, params: dict | None = None
-    ):
-        path = f"{self.subpath}/{path}" if path else self.subpath
-        return super()._explorer_get_request(f"{path}", params)
+        super().__init__(subpath="stats")
 
     def get_stats(self) -> dict:
         """

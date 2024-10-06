@@ -1,3 +1,6 @@
+"""
+Client for the PulseChain API.
+"""
 from pulsechain.subclients.adresses import AddressesClient
 from pulsechain.subclients.blocks import BlocksClient
 from pulsechain.subclients.search import SearchClient
