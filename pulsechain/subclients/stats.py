@@ -1,35 +1,61 @@
+"""
+Stats subclient for the PulseChain API.
+
+This module defines the StatsClient class, which handles API endpoints related to
+retrieving various statistical data such as general stats, transaction charts, and market charts.
+The client provides methods to query these statistics and return them in a structured response format.
+"""
+from pulsechain.models import BaseResponse
 from pulsechain.subclients.base_client import SubpathClient
 
 
 class StatsClient(SubpathClient):
+    """
+    A client for accessing statistical endpoints in the PulseChain API.
+
+    The StatsClient provides methods to retrieve general statistics, transaction data
+    over a recent time period, and market-related data. These statistics can be used
+    to analyze the state of the PulseChain network.
+    """
+
     def __init__(self):
+        """
+        Initialize the StatsClient with the subpath 'stats'.
+        """
         super().__init__(subpath="stats")
 
-    def get_stats(self) -> dict:
+    def get_stats(self) -> BaseResponse:
         """
-        Get statistical counters
+        Retrieve general statistical counters from the PulseChain network.
 
-        :return: A dictionary representing the JSON response from the API,
-                 which includes the transaction receipt status.
-        :rtype: dict
+        This method fetches overall statistics from the PulseChain API, which
+        may include transaction-related counters and other network statistics.
+
+        :return: A BaseResponse object containing general statistics for the network.
         """
         response = self._explorer_get_request()
-        return response
+        return BaseResponse(items=[response])
 
-    def get_transactions_chart(self) -> dict:
+    def get_transactions_chart(self) -> BaseResponse:
         """
-        Get tx_count value from last 31 days.
+        Retrieve transaction count data for the last 31 days.
 
-        :return: A dictionary representing the JSON response from the API,
-                 which includes the transaction receipt status.
-        :rtype: dict
+        This method fetches a chart containing the transaction count (`tx_count`)
+        for the past 31 days from the PulseChain network.
+
+        :return: A BaseResponse object containing chart data with transaction counts for the last 31 days.
         """
         response = self._explorer_get_request("charts/transactions")
-        return response["chart_data"]
+        return BaseResponse(items=[response["chart_data"]])
 
-    def get_market_chart(self) -> dict:
+    def get_market_chart(self) -> BaseResponse:
         """
-        No idea what this endpoint supposed to do.
-        :return: Data about available supply. Currently empty
+        Retrieve market chart data from the PulseChain API.
+
+        This method fetches the available supply and chart data from the market-related
+        endpoint. The data returned currently includes an empty supply and an empty chart.
+
+        :return: A BaseResponse object containing market chart data, which may include
+                 available supply and other market-related statistics.
         """
-        return self._explorer_get_request("charts/market")
+        return BaseResponse(items=[self._explorer_get_request("charts/market")])

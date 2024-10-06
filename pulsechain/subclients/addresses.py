@@ -1,3 +1,7 @@
+"""
+Addresses subclient for the PulseChain API.
+This client handles the endpoints related to addresses.
+"""
 from pulsechain.exceptions import PulseChainBadParamException
 from pulsechain.models import BaseResponse
 from pulsechain.subclients.base_client import SubpathClient
@@ -5,6 +9,10 @@ from pulsechain.utils import paginated
 
 
 class AddressesClient(SubpathClient):
+    """
+    Addresses subclient class for the PulseChain API.
+    """
+
     def __init__(self):
         """
         Initialize the AddressesClient with the subpath 'addresses'.
@@ -39,7 +47,8 @@ class AddressesClient(SubpathClient):
         :param str address: The address for which to fetch transactions.
         :param str endpoint: The endpoint to use for the request (e.g., 'transactions', 'internal-transactions').
         :param dict params: Additional parameters for the request.
-        :param str txn_filter: A filter to apply on the transactions, such as filtering by transaction type ('to', 'from').
+        :param str txn_filter: A filter to apply on the transactions, such as filtering by transaction type
+                               Valid options are 'to', 'from'.
                                Defaults to None.
         :returns: A tuple containing a list of transactions and the next page parameters.
         :raises PulseChainBadParamException: If an invalid `txn_filter` is provided.
@@ -88,7 +97,7 @@ class AddressesClient(SubpathClient):
         Fetch transactions for a specific address with optional transaction filtering and pagination.
 
         :param str address: The address for which to fetch transactions.
-        :param str txn_filter: A filter to apply on the transactions, such as filtering by transaction type ('to', 'from').
+        :param str txn_filter: A filter to apply on the transactions.
                                Defaults to None.
         :returns: A tuple containing a response object with the transactions and the next page parameters.
         """
@@ -111,9 +120,10 @@ class AddressesClient(SubpathClient):
         Fetch token transfers for a specific address with optional filters for token type, transaction type, and token.
 
         :param str address: The address for which to fetch token transfers.
-        :param list[str] token_type: A list of token types to filter the transfers. Valid options are 'ERC-20', 'ERC-721',
-                                     or 'ERC-1155'. Defaults to None.
-        :param str txn_filter: A filter to apply on the transactions, such as filtering by transaction type ('to', 'from').
+        :param list[str] token_type: A list of token types to filter the transfers.
+                                     Valid options are 'ERC-20', 'ERC-721', or 'ERC-1155'.
+                                     Defaults to None.
+        :param str txn_filter: A filter to apply on the transactions.
                                Defaults to None.
         :param str token: A specific token to filter the transfers by. Defaults to None.
         :returns: A tuple containing a response object with token transfers and the next page parameters.
@@ -142,7 +152,7 @@ class AddressesClient(SubpathClient):
         Fetch internal transactions for a specific address.
 
         :param str address: The address for which to fetch internal transactions.
-        :param str txn_filter: A filter to apply on the transactions, such as filtering by transaction type ('to', 'from').
+        :param str txn_filter: A filter to apply on the transactions.
                                Defaults to None.
         :returns: A tuple containing a response object with internal transactions and the next page parameters.
         """
@@ -198,8 +208,8 @@ class AddressesClient(SubpathClient):
         Fetch token balances for a specific address with optional filtering by token type and pagination.
 
         :param str address: The address for which to fetch token balances.
-        :param list[str] token_type: A list of token types to filter the balances. Valid options are 'ERC-20', 'ERC-721',
-                                     or 'ERC-1155'. Defaults to None.
+        :param list[str] token_type: A list of token types to filter the balances.
+                                     Valid options are 'ERC-20', 'ERC-721', or 'ERC-1155'. Defaults to None.
         :returns: A tuple containing a response object with the token balances and the next page parameters.
         """
         params = kwargs.pop("params", {})
@@ -247,6 +257,7 @@ class AddressesClient(SubpathClient):
         response = self._explorer_get_request(f"{address}/withdrawals", params=params)
         return BaseResponse(items=response["items"]), response["next_page_params"]
 
+    @paginated
     def get_nfts(self, address: str, params: dict) -> tuple[BaseResponse, dict]:
         """
         Fetch NFTs for a specific address.

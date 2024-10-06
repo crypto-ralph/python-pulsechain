@@ -18,15 +18,23 @@ from pulsechain.exceptions import (
 
 class BaseClient(ABC):
     def __init__(self):
+        """
+        Initialize the BaseClient with the PulseChain API base URL.
+        """
         self.base_url = "https://api.scan.pulsechain.com/api/v2"
 
     @abstractmethod
     def _explorer_get_request(self, path: str, params: dict | None = None) -> dict:
         """
-        Get request to the explorer API.
-        :param path: API path
-        :param params: Additional parameters for the request.
-        :return: Response from the API if the call was successful.
+        Perform a GET request to the PulseChain API explorer.
+
+        This method sends a GET request to the specified path on the PulseChain API
+        explorer and handles any errors that might occur during the request, such as
+        timeouts or bad requests.
+
+        :param path: The API path to send the request to.
+        :param params: Optional parameters to include in the request.
+        :return: The response from the API if the request is successful.
         """
         try:
             response = httpx.get(f"{self.base_url}/{path}", params=params, timeout=60)
@@ -37,8 +45,17 @@ class BaseClient(ABC):
     @staticmethod
     def _check_result(response: httpx.Response) -> dict:
         """
-        :param response: Response from the API to be checked.
-        :return: Unwrapped result if the call was successful.
+        Check the result of the API response and handle errors.
+
+        This method checks the HTTP status code of the response and raises the appropriate
+        exception if the request was not successful.
+
+        :param response: The response object from the PulseChain API.
+        :return: The parsed JSON response if the status code is 200.
+        :raises PulseChainServerError: If the response status code is 500.
+        :raises PulseChainUnprocessableEntityException: If the response status code is 422.
+        :raises PulseChainBadRequestException: If the response status code is 400.
+        :raises PulseChainUnknownException: If the response status code is not recognized.
         """
 
         if response.status_code == 200:
