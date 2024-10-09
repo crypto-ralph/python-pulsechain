@@ -7,8 +7,10 @@ NFT instances. The client provides search capabilities and supports paginated re
 """
 
 from pulsechain.models import BaseResponse
-from pulsechain.subclients.base_client import SubpathClient
+from pulsechain.req_handler import APIRequestHandler
+from pulsechain.subclients.subpath_client import SubpathClient
 from pulsechain.utils import paginated
+from pulsechain.validators import validate_token_type
 
 
 class TokensClient(SubpathClient):
@@ -21,11 +23,11 @@ class TokensClient(SubpathClient):
     paginated responses for large data sets.
     """
 
-    def __init__(self):
+    def __init__(self, request_handler: APIRequestHandler):
         """
         Initialize the TokensClient with the subpath 'tokens'.
         """
-        super().__init__(subpath="tokens")
+        super().__init__(subpath="tokens", request_handler=request_handler)
 
     @paginated
     def get_tokens(
@@ -50,9 +52,9 @@ class TokensClient(SubpathClient):
         if params:
             params["q"] = name_query
             if token_type:
-                params["type"] = self._validate_token_type(token_type)
+                params["type"] = validate_token_type(token_type)
 
-        response = self._explorer_get_request(params=params)
+        response = self.get(params=params)
         return BaseResponse(items=response["items"]), response["next_page_params"]
 
     def get_info(self, address: str) -> BaseResponse:
@@ -61,7 +63,7 @@ class TokensClient(SubpathClient):
         :param address: The address for which to fetch information.
         :return: A dictionary containing information about the token.
         """
-        response = self._explorer_get_request(address)
+        response = self.get(address)
         return BaseResponse(items=[response])
 
     @paginated
@@ -72,7 +74,7 @@ class TokensClient(SubpathClient):
         :param params: Additional parameters for the request.
         :return: Response object containing token transfers.
         """
-        response = self._explorer_get_request(f"{address}/transfers", params=params)
+        response = self.get(f"{address}/transfers", params=params)
         return BaseResponse(items=response["items"]), response["next_page_params"]
 
     @paginated
@@ -88,7 +90,7 @@ class TokensClient(SubpathClient):
         :return: A tuple containing a BaseResponse object with holder data and
                  a dictionary with pagination parameters for the next page.
         """
-        response = self._explorer_get_request(f"{address}/holders", params=params)
+        response = self.get(f"{address}/holders", params=params)
         return BaseResponse(items=response["items"]), response["next_page_params"]
 
     def get_counters(self, address: str) -> BaseResponse:
@@ -101,7 +103,7 @@ class TokensClient(SubpathClient):
         :param address: The token address for which to fetch counters.
         :return: A BaseResponse object containing the token counters.
         """
-        response = self._explorer_get_request(f"{address}/counters")
+        response = self.get(f"{address}/counters")
         return BaseResponse(items=[response])
 
     @paginated
@@ -119,5 +121,5 @@ class TokensClient(SubpathClient):
         :return: A tuple containing a BaseResponse object with NFT instance data and
                  a dictionary with pagination parameters for the next page.
         """
-        response = self._explorer_get_request(f"{address}/instances", params=params)
+        response = self.get(f"{address}/instances", params=params)
         return BaseResponse(items=response["items"]), response["next_page_params"]

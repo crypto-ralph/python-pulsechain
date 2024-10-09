@@ -22,4 +22,4 @@ jobs:
         pip install pydantic
     - name: Analysing the code with pylint
       run: |
-        pylint --max-line-length=120 --extension-pkg-whitelist=pydantic  $(git ls-files '*.py')
+        pylint --max-line-length=120 --extension-pkg-whitelist=pydantic --disable=too-few-public-methods,too-many-instance-attributes $(git ls-files '*.py')

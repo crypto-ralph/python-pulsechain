@@ -7,7 +7,8 @@ within the PulseChain ecosystem.
 """
 
 from pulsechain.models import BaseResponse
-from pulsechain.subclients.base_client import SubpathClient
+from pulsechain.req_handler import APIRequestHandler
+from pulsechain.subclients.subpath_client import SubpathClient
 from pulsechain.utils import paginated
 
 
@@ -20,11 +21,11 @@ class SearchClient(SubpathClient):
     with the 'search' subpath.
     """
 
-    def __init__(self):
+    def __init__(self, request_handler: APIRequestHandler):
         """
         Initialize the SearchClient with the subpath 'search'.
         """
-        super().__init__(subpath="search")
+        super().__init__(subpath="search", request_handler=request_handler)
 
     @paginated
     def search(self, query: str, params: dict) -> tuple[BaseResponse, dict]:
@@ -35,7 +36,7 @@ class SearchClient(SubpathClient):
         :return: A tuple containing a response object with the search results and the next page parameters.
         """
         params["q"] = query
-        response = self._explorer_get_request(params=params)
+        response = self.get(params=params)
         return BaseResponse(items=response["items"]), response["next_page_params"]
 
     def check_redirect(self, query: str) -> BaseResponse:
@@ -44,5 +45,5 @@ class SearchClient(SubpathClient):
         :param query: The query to search for.
         :return: A response object with the search results.
         """
-        response = self._explorer_get_request("check-redirect", params={"q": query})
+        response = self.get("check-redirect", params={"q": query})
         return BaseResponse(items=[response])

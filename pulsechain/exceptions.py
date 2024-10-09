@@ -11,11 +11,10 @@ import httpx
 
 class PulsechainException(Exception):
     """
-        Base exception for the PulseChain client.
+    Base exception for the PulseChain client.
 
-        All custom exceptions for the PulseChain API inherit from this class.
-        """
-    pass
+    All custom exceptions for the PulseChain API inherit from this class.
+    """
 
 
 class PulseChainAPIException(PulsechainException):
@@ -25,7 +24,6 @@ class PulseChainAPIException(PulsechainException):
     This class is a generic exception for errors that occur when interacting
     with the PulseChain API.
     """
-    pass
 
 
 class PulseChainTimeoutException(PulseChainAPIException):
@@ -34,7 +32,6 @@ class PulseChainTimeoutException(PulseChainAPIException):
 
     This error occurs when the API takes too long to respond.
     """
-    pass
 
 
 class PulseChainServerError(PulseChainAPIException):
@@ -44,7 +41,6 @@ class PulseChainServerError(PulseChainAPIException):
     This error is triggered when the PulseChain API returns a 500 status code,
     indicating an internal server error.
     """
-    pass
 
 
 class PulseChainUnprocessableEntityException(PulseChainAPIException):
@@ -55,6 +51,7 @@ class PulseChainUnprocessableEntityException(PulseChainAPIException):
     when the request contains invalid data. The error message from the API is
     passed into the exception.
     """
+
     def __init__(self, response: httpx.Response):
         super().__init__(response.json()["message"])
 
@@ -66,6 +63,7 @@ class PulseChainBadRequestException(PulseChainAPIException):
     This error occurs when the PulseChain API returns a 400 status code, indicating
     an invalid request. The error message from the API is passed into the exception.
     """
+
     def __init__(self, response: httpx.Response):
         super().__init__(response.json()["message"])
 
@@ -76,7 +74,6 @@ class PulseChainUnknownException(PulseChainAPIException):
 
     This error is used when the PulseChain API returns an unexpected status code.
     """
-    pass
 
 
 class PulseChainBadParamException(PulsechainException):
@@ -85,4 +82,3 @@ class PulseChainBadParamException(PulsechainException):
 
     This error occurs when the client code passes invalid parameters to an API request.
     """
-    pass

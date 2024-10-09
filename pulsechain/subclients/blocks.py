@@ -1,32 +1,37 @@
-from pulsechain.exceptions import PulseChainBadParamException
+"""
+This module provides the `BlocksClient` class, which interacts with the 'blocks' subpath
+of the PulseChain API.
+
+The `BlocksClient` class provides methods to retrieve information about blocks, including
+block details, transactions, and withdrawals. It also allows filtering blocks by block type
+and uses the `APIRequestHandler` for making HTTP requests.
+"""
 from pulsechain.models import BaseResponse
-from pulsechain.subclients.base_client import SubpathClient
+from pulsechain.req_handler import APIRequestHandler
+from pulsechain.subclients.subpath_client import SubpathClient
 from pulsechain.utils import paginated
+from pulsechain.validators import validate_block_type
 
 
 class BlocksClient(SubpathClient):
-    def __init__(self):
-        """
-        Initialize the AddressesClient with the subpath 'transactions'.
-        """
-        super().__init__(subpath="blocks")
+    """
+    Client for interacting with the 'blocks' subpath of the PulseChain API.
 
-    @staticmethod
-    def _validate_block_type(block_type: list[str]) -> str:
-        """
-        Validate the block type filter.
+    The `BlocksClient` provides methods to interact with block data, including retrieving
+    block details, transactions, and withdrawals for a specific block. It also supports
+    filtering blocks by block type.
 
-        :param block_type: A list of block types to validate. Valid options are 'block', 'uncle' or 'reorg'.
-        :returns: String with comma separated block types if valid
-        :raises PulseChainBadParamException: If any `block_type` is not a valid type.
+    Attributes:
+        request_handler (APIRequestHandler): The handler for making HTTP requests.
+    """
+
+    def __init__(self, request_handler: APIRequestHandler):
         """
-        valid_block_types = {"block", "uncle", "reorg"}
-        for b_type in block_type:
-            if b_type not in valid_block_types:
-                raise PulseChainBadParamException(
-                    "block_type must be either 'header' or 'body'"
-                )
-        return "|".join(block_type)
+        Initialize the BlocksClient with the subpath 'blocks'.
+
+        :param request_handler: The handler for making HTTP requests.
+        """
+        super().__init__(subpath="blocks", request_handler=request_handler)
 
     @paginated
     def get_blocks(
@@ -38,8 +43,8 @@ class BlocksClient(SubpathClient):
         """
         if params:
             if block_type:
-                params["type"] = self._validate_block_type(block_type)
-        response = self._explorer_get_request(params=params)
+                params["type"] = validate_block_type(block_type)
+        response = self.get(params=params)
         return BaseResponse(items=response["items"]), response["next_page_params"]
 
     def get_block_info(self, block: str) -> BaseResponse:
@@ -48,7 +53,7 @@ class BlocksClient(SubpathClient):
         :param block: the hash or the number of the block
         :return: BaseResponse with information about the block
         """
-        response = self._explorer_get_request(block)
+        response = self.get(block)
         return BaseResponse(items=[response])
 
     def get_block_txns(self, block: str) -> BaseResponse:
@@ -57,7 +62,7 @@ class BlocksClient(SubpathClient):
         :param block: the hash or the number of the block
         :return: BaseResponse with information about the block transactions
         """
-        response = self._explorer_get_request(f"{block}/transactions")
+        response = self.get(f"{block}/transactions")
         return BaseResponse(items=[response])
 
     def get_block_withdrawals(self, block: str) -> BaseResponse:
@@ -66,5 +71,5 @@ class BlocksClient(SubpathClient):
         :param block: the hash or the number of the block
         :return: BaseResponse with information about the block withdrawals
         """
-        response = self._explorer_get_request(f"{block}/withdrawals")
+        response = self.get(f"{block}/withdrawals")
         return BaseResponse(items=[response])

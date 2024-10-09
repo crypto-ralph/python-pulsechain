@@ -1,75 +1,40 @@
-from pulsechain.exceptions import PulseChainBadParamException
+"""
+This module provides the `TransactionsClient` class,
+which interacts with the 'transactions' subpath of the PulseChain API.
+
+The `TransactionsClient` class provides methods to retrieve detailed transaction information,
+including token transfers, internal transactions, logs, and state changes. It utilizes the
+`APIRequestHandler` for making HTTP requests and includes pagination support for methods that
+return large datasets.
+"""
 from pulsechain.models import BaseResponse
-from pulsechain.subclients.base_client import SubpathClient
+from pulsechain.req_handler import APIRequestHandler
+from pulsechain.subclients.subpath_client import SubpathClient
 from pulsechain.utils import paginated
+from pulsechain.validators import (
+    validate_method,
+    validate_txn_filter,
+    validate_txn_type,
+)
 
 
 class TransactionsClient(SubpathClient):
-    def __init__(self):
+    """
+    Client for interacting with the 'transactions' subpath of the PulseChain API.
+
+    The `TransactionsClient` provides methods to retrieve information about transactions,
+    including transaction details, token transfers, internal transactions, logs, and state
+    changes. It also handles validation of transaction filters and methods.
+
+    Attributes:
+        request_handler (APIRequestHandler): The handler for making HTTP requests.
+    """
+
+    def __init__(self, request_handler: APIRequestHandler):
         """
         Initialize the AddressesClient with the subpath 'transactions'.
         """
-        super().__init__(subpath="transactions")
-
-    @staticmethod
-    def _validate_txn_type(txn_type: list[str]) -> str:
-        """
-        Validate the tx type filter.
-
-        :param txn_type: A list of tx types to validate.
-                        Valid options are 'token_transfer', 'contract_creation',
-                        'contract_call', 'coin_transfer', or 'token_creation'.
-        :returns: String with comma separated tx types if valid
-        :raises PulseChainBadParamException: If any `tx_type` is not a valid type.
-        """
-        valid_txn_types = {
-            "token_transfer",
-            "contract_creation",
-            "contract_call",
-            "coin_transfer",
-            "token_creation",
-        }
-        for t_type in txn_type:
-            if t_type not in valid_txn_types:
-                raise PulseChainBadParamException(
-                    "tx_type must be either 'token_transfer', 'contract_creation', 'contract_call', 'coin_transfer', "
-                    "or 'token_creation'"
-                )
-        return ",".join(txn_type)
-
-    @staticmethod
-    def _validate_txn_filter(txn_filter: list[str]) -> str:
-        """
-        Validate the transaction filter.
-
-        :param str txn_filter: The transaction filter to validate. Should be either 'pending' or 'validated'.
-        :returns: The validated transaction filter.
-        :raises PulseChainBadParamException: If `txn_filter` is not 'pending' or 'validated'.
-        """
-        valid_txn_filters = {"pending", "validated"}
-        for t_filter in txn_filter:
-            if t_filter not in valid_txn_filters:
-                raise PulseChainBadParamException(
-                    "txn_filter must be either 'pending or 'validated'"
-                )
-        return " | ".join(txn_filter)
-
-    @staticmethod
-    def _validate_method(method: list[str]) -> str:
-        """
-        Validate the method filter.
-
-        :param method: The method filter to validate.
-                           Should be either 'approve', 'transfer', 'multicall', 'mint', or 'commit'.
-        :returns: The validated method filter.
-        :raises PulseChainBadParamException: If `method` is not 'approve', 'transfer', 'multicall', 'mint', or 'commit'.
-        """
-        valid_methods = {"approve", "transfer", "multicall", "mint", "commit"}
-        if method not in valid_methods:
-            raise PulseChainBadParamException(
-                "method must be either 'approve', 'transfer', 'multicall', 'mint', or 'commit'"
-            )
-        return ",".join(method)
+        super().__init__(subpath="transactions", request_handler=request_handler)
 
     @paginated
     def get_transactions(
@@ -79,38 +44,52 @@ class TransactionsClient(SubpathClient):
         method: list[str] | None = None,
         params: dict | None = None,
     ) -> tuple[BaseResponse, dict]:
+        """
+        Retrieve a list of transactions based on filters.
+
+        This method allows for filtering transactions based on filter, transaction type, and method.
+        Validates the provided filters and returns a paginated response.
+
+        :param txn_filter: List of transaction filters (e.g., 'pending', 'validated').
+        :param txn_type: List of transaction types (e.g., 'token_transfer', 'contract_creation').
+        :param method: List of methods (e.g., 'approve', 'transfer').
+        :param params: Additional query parameters for the request.
+        :return: A tuple containing a `BaseResponse` object with the transaction data and
+                 the next page parameters for pagination.
+        """
         if params:
             if txn_filter:
-                params["filter"] = self._validate_txn_filter(txn_filter)
+                params["filter"] = validate_txn_filter(txn_filter)
             if txn_type:
-                params["tx_type"] = self._validate_txn_type(txn_type)
+                params["tx_type"] = validate_txn_type(txn_type)
             if method:
-                params["method"] = self._validate_method(method)
+                params["method"] = validate_method(method)
 
-        response = self._explorer_get_request(params=params)
+        response = self.get(params=params)
         return BaseResponse(items=response["items"]), response["next_page_params"]
 
     def get_transaction_info(self, transaction_hash: str) -> BaseResponse:
         """
-        Get information about a specific transaction.
-        :param transaction_hash: the hash of the transaction
-        :return: A response object containing information about the transaction.
+        Get detailed information about a specific transaction.
+
+        :param transaction_hash: The hash of the transaction.
+        :return: A `BaseResponse` object containing detailed information about the transaction.
         """
-        return BaseResponse(items=[self._explorer_get_request(transaction_hash)])
+        return BaseResponse(items=[self.get(transaction_hash)])
 
     @paginated
     def get_token_transfers(
         self, transaction_hash: str, params: dict
     ) -> tuple[BaseResponse, dict]:
         """
-        Get information about a token transfers in a specific transaction.
-        :param transaction_hash: the hash of the transaction
-        :param dict params: Additional parameters for the request.
-        :return: A response object containing information about the transaction.
+        Retrieve token transfers for a specific transaction.
+
+        :param transaction_hash: The hash of the transaction.
+        :param params: Additional parameters for the request.
+        :return: A tuple containing a `BaseResponse` object with token transfer data and
+                 the next page parameters for pagination.
         """
-        response = self._explorer_get_request(
-            f"{transaction_hash}/token-transfers", params=params
-        )
+        response = self.get(f"{transaction_hash}/token-transfers", params=params)
         return BaseResponse(items=response["items"]), response["next_page_params"]
 
     @paginated
@@ -118,14 +97,14 @@ class TransactionsClient(SubpathClient):
         self, transaction_hash: str, params: dict
     ) -> tuple[BaseResponse, dict]:
         """
-        Get information about the internal transactions in a specific transaction.
-        :param transaction_hash: the hash of the transaction
-        :param dict params: Additional parameters for the request.
-        :return: A response object containing information about the internal transactions.
+        Retrieve internal transactions for a specific transaction.
+
+        :param transaction_hash: The hash of the transaction.
+        :param params: Additional parameters for the request.
+        :return: A tuple containing a `BaseResponse` object with internal transaction data and
+                 the next page parameters for pagination.
         """
-        response = self._explorer_get_request(
-            f"{transaction_hash}/internal-transactions", params=params
-        )
+        response = self.get(f"{transaction_hash}/internal-transactions", params=params)
         return BaseResponse(items=response["items"]), response["next_page_params"]
 
     @paginated
@@ -133,35 +112,36 @@ class TransactionsClient(SubpathClient):
         self, transaction_hash: str, params: dict
     ) -> tuple[BaseResponse, dict]:
         """
+        Retrieve logs for a specific transaction.
 
-        :param transaction_hash: the hash of the transaction
-        :param dict params: Additional parameters for the request.
-        :return:
+        :param transaction_hash: The hash of the transaction.
+        :param params: Additional parameters for the request.
+        :return: A tuple containing a `BaseResponse` object with log data and
+                 the next page parameters for pagination.
         """
-        response = self._explorer_get_request(f"{transaction_hash}/logs", params=params)
+        response = self.get(f"{transaction_hash}/logs", params=params)
         return BaseResponse(items=response["items"]), response["next_page_params"]
 
     def get_raw_trace(self, transaction_hash: str) -> BaseResponse:
         """
-        Get information about a specific transaction.
-        :param transaction_hash: the hash of the transaction
-        :return: A response object containing information about the transaction.
+        Retrieve raw trace information for a specific transaction.
+
+        :param transaction_hash: The hash of the transaction.
+        :return: A `BaseResponse` object containing raw trace information about the transaction.
         """
-        return BaseResponse(
-            items=self._explorer_get_request(f"{transaction_hash}/raw-trace")
-        )
+        return BaseResponse(items=[self.get(f"{transaction_hash}/raw-trace")])
 
     @paginated
     def get_state_changes(
         self, transaction_hash: str, params: dict
     ) -> tuple[BaseResponse, dict]:
         """
+        Retrieve state changes for a specific transaction.
 
-        :param transaction_hash: the hash of the transaction
-        :param dict params: Additional parameters for the request.
-        :return:
+        :param transaction_hash: The hash of the transaction.
+        :param params: Additional parameters for the request.
+        :return: A tuple containing a `BaseResponse` object with state change data and
+                 the next page parameters for pagination.
         """
-        response = self._explorer_get_request(
-            f"{transaction_hash}/state-changes", params=params
-        )
+        response = self.get(f"{transaction_hash}/state-changes", params=params)
         return BaseResponse(items=response["items"]), response["next_page_params"]

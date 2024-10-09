@@ -5,8 +5,10 @@ This module defines the StatsClient class, which handles API endpoints related t
 retrieving various statistical data such as general stats, transaction charts, and market charts.
 The client provides methods to query these statistics and return them in a structured response format.
 """
+
 from pulsechain.models import BaseResponse
-from pulsechain.subclients.base_client import SubpathClient
+from pulsechain.req_handler import APIRequestHandler
+from pulsechain.subclients.subpath_client import SubpathClient
 
 
 class StatsClient(SubpathClient):
@@ -18,11 +20,11 @@ class StatsClient(SubpathClient):
     to analyze the state of the PulseChain network.
     """
 
-    def __init__(self):
+    def __init__(self, request_handler: APIRequestHandler):
         """
         Initialize the StatsClient with the subpath 'stats'.
         """
-        super().__init__(subpath="stats")
+        super().__init__(subpath="stats", request_handler=request_handler)
 
     def get_stats(self) -> BaseResponse:
         """
@@ -33,7 +35,7 @@ class StatsClient(SubpathClient):
 
         :return: A BaseResponse object containing general statistics for the network.
         """
-        response = self._explorer_get_request()
+        response = self.get()
         return BaseResponse(items=[response])
 
     def get_transactions_chart(self) -> BaseResponse:
@@ -45,7 +47,7 @@ class StatsClient(SubpathClient):
 
         :return: A BaseResponse object containing chart data with transaction counts for the last 31 days.
         """
-        response = self._explorer_get_request("charts/transactions")
+        response = self.get("charts/transactions")
         return BaseResponse(items=[response["chart_data"]])
 
     def get_market_chart(self) -> BaseResponse:
@@ -58,4 +60,4 @@ class StatsClient(SubpathClient):
         :return: A BaseResponse object containing market chart data, which may include
                  available supply and other market-related statistics.
         """
-        return BaseResponse(items=[self._explorer_get_request("charts/market")])
+        return BaseResponse(items=[self.get("charts/market")])

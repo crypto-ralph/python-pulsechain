@@ -2,10 +2,11 @@
 Addresses subclient for the PulseChain API.
 This client handles the endpoints related to addresses.
 """
-from pulsechain.exceptions import PulseChainBadParamException
 from pulsechain.models import BaseResponse
-from pulsechain.subclients.base_client import SubpathClient
+from pulsechain.req_handler import APIRequestHandler
+from pulsechain.subclients.subpath_client import SubpathClient
 from pulsechain.utils import paginated
+from pulsechain.validators import validate_addres_txn_filter, validate_token_type
 
 
 class AddressesClient(SubpathClient):
@@ -13,26 +14,11 @@ class AddressesClient(SubpathClient):
     Addresses subclient class for the PulseChain API.
     """
 
-    def __init__(self):
+    def __init__(self, request_handler: APIRequestHandler):
         """
         Initialize the AddressesClient with the subpath 'addresses'.
         """
-        super().__init__(subpath="addresses")
-
-    @staticmethod
-    def _validate_txn_filter(txn_filter: str) -> str:
-        """
-        Validate the transaction filter.
-
-        :param str txn_filter: The transaction filter to validate. Should be either 'to' or 'from'.
-        :returns: The validated transaction filter.
-        :raises PulseChainBadParamException: If `txn_filter` is not 'to' or 'from'.
-        """
-        if txn_filter not in {"to", "from"}:
-            raise PulseChainBadParamException(
-                "txn_filter must be either 'to' or 'from'"
-            )
-        return txn_filter
+        super().__init__(subpath="addresses", request_handler=request_handler)
 
     def _get_address_txns(
         self,
@@ -54,10 +40,10 @@ class AddressesClient(SubpathClient):
         :raises PulseChainBadParamException: If an invalid `txn_filter` is provided.
         """
         if txn_filter is not None:
-            txn_filter = self._validate_txn_filter(txn_filter)
+            txn_filter = validate_addres_txn_filter(txn_filter)
             params["filter"] = txn_filter
 
-        response = self._explorer_get_request(f"{address}/{endpoint}", params=params)
+        response = self.get(f"{address}/{endpoint}", params=params)
         return response["items"], response["next_page_params"]
 
     def get_pls_holders_list(self) -> BaseResponse:
@@ -66,7 +52,7 @@ class AddressesClient(SubpathClient):
 
         :returns: A response object containing a list of PLS holders.
         """
-        return BaseResponse(items=self._explorer_get_request()["items"])
+        return BaseResponse(items=self.get()["items"])
 
     def get_info(self, address: str) -> BaseResponse:
         """
@@ -75,7 +61,7 @@ class AddressesClient(SubpathClient):
         :param str address: The address to fetch information for.
         :returns: A response object containing general information about the address.
         """
-        return BaseResponse(items=self._explorer_get_request(address))
+        return BaseResponse(items=[self.get(address)])
 
     def get_counters(self, address: str) -> BaseResponse:
         """
@@ -84,7 +70,7 @@ class AddressesClient(SubpathClient):
         :param str address: The address to fetch counters for.
         :returns: A response object containing counters related to the address.
         """
-        return BaseResponse(items=self._explorer_get_request(f"{address}/counters"))
+        return BaseResponse(items=[self.get(f"{address}/counters")])
 
     @paginated
     def get_transactions(
@@ -131,17 +117,15 @@ class AddressesClient(SubpathClient):
         """
         params = kwargs.pop("params", {})
         if token_type:
-            params["token_type"] = self._validate_token_type(token_type)
+            params["token_type"] = validate_token_type(token_type)
 
         if txn_filter:
-            params["filter"] = self._validate_txn_filter(txn_filter)
+            params["filter"] = validate_addres_txn_filter(txn_filter)
 
         if token:
             params["token"] = token
 
-        response = self._explorer_get_request(
-            f"{address}/token-transfers", params=params
-        )
+        response = self.get(f"{address}/token-transfers", params=params)
         return BaseResponse(items=response["items"]), response["next_page_params"]
 
     @paginated
@@ -169,9 +153,7 @@ class AddressesClient(SubpathClient):
         :param str address: The smart contract address to fetch logs for.
         :returns: A response object containing logs related to the smart contract.
         """
-        return BaseResponse(
-            items=self._explorer_get_request(f"{address}/logs")["items"]
-        )
+        return BaseResponse(items=self.get(f"{address}/logs")["items"])
 
     @paginated
     def get_blocks_validated(
@@ -184,9 +166,7 @@ class AddressesClient(SubpathClient):
         :param dict params: Additional parameters for the request.
         :returns: A tuple containing a response object with the blocks validated and the next page parameters.
         """
-        response = self._explorer_get_request(
-            f"{address}/blocks-validated", params=params
-        )
+        response = self.get(f"{address}/blocks-validated", params=params)
         return BaseResponse(items=response["items"]), response["next_page_params"]
 
     def get_token_balances(self, address: str) -> BaseResponse:
@@ -196,9 +176,7 @@ class AddressesClient(SubpathClient):
         :param str address: The address for which to fetch token balances.
         :returns: A response object containing token balances.
         """
-        return BaseResponse(
-            items=self._explorer_get_request(f"{address}/token-balances")
-        )
+        return BaseResponse(items=[self.get(f"{address}/token-balances")])
 
     @paginated
     def get_tokens(
@@ -214,8 +192,8 @@ class AddressesClient(SubpathClient):
         """
         params = kwargs.pop("params", {})
         if token_type:
-            params["type"] = self._validate_token_type(token_type)
-        response = self._explorer_get_request(f"{address}/tokens", params=params)
+            params["type"] = validate_token_type(token_type)
+        response = self.get(f"{address}/tokens", params=params)
         return BaseResponse(items=response["items"]), response["next_page_params"]
 
     @paginated
@@ -229,9 +207,7 @@ class AddressesClient(SubpathClient):
         :param dict params: Additional parameters for the request.
         :returns: A tuple containing a response object with the coin balance history and the next page parameters.
         """
-        response = self._explorer_get_request(
-            f"{address}/coin-balance-history", params=params
-        )
+        response = self.get(f"{address}/coin-balance-history", params=params)
         return BaseResponse(items=response["items"]), response["next_page_params"]
 
     def get_coin_balance_history_by_day(self, address: str) -> BaseResponse:
@@ -242,8 +218,8 @@ class AddressesClient(SubpathClient):
         :returns: A response object containing the daily balance history.
         :rtype: BaseResponse
         """
-        response = self._explorer_get_request(f"{address}/coin-balance-history-by-day")
-        return BaseResponse(items=response)
+        response = self.get(f"{address}/coin-balance-history-by-day")
+        return BaseResponse(items=[response])
 
     @paginated
     def get_withdrawals(self, address: str, params: dict) -> tuple[BaseResponse, dict]:
@@ -254,7 +230,7 @@ class AddressesClient(SubpathClient):
         :param dict params: Additional parameters for the request.
         :returns: A list of dictionaries containing withdrawal information.
         """
-        response = self._explorer_get_request(f"{address}/withdrawals", params=params)
+        response = self.get(f"{address}/withdrawals", params=params)
         return BaseResponse(items=response["items"]), response["next_page_params"]
 
     @paginated
@@ -266,7 +242,7 @@ class AddressesClient(SubpathClient):
         :param dict params: Additional parameters for the request.
         :returns: A list of dictionaries containing NFTs related to the address.
         """
-        response = self._explorer_get_request(f"{address}/nft", params=params)
+        response = self.get(f"{address}/nft", params=params)
         return BaseResponse(items=response["items"]), response["next_page_params"]
 
     def get_nft_collections(
@@ -279,7 +255,5 @@ class AddressesClient(SubpathClient):
         :param dict params: Additional parameters for the request.
         :returns: A list of dictionaries containing NFT collections related to the address.
         """
-        response = self._explorer_get_request(
-            f"{address}/nft/collections", params=params
-        )
+        response = self.get(f"{address}/nft/collections", params=params)
         return BaseResponse(items=response["items"]), response["next_page_params"]
