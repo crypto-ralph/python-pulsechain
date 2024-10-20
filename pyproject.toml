@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "python-pulsechain"
-version = "0.2.0"
+version = "0.3.0"
 description = "Python implementation for PulseChain API"
-license = "MIT"
+license = "GPL-3.0"
 repository = "https://github.com/crypto-ralph/python-pulsechain"
 authors = ["CryptoRalph <doxter@protonmail.com>"]
 readme = "README.md"
@@ -18,12 +18,11 @@ pydantic = "^2.8.2"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.3.1"
-flake8 = "^6.0.0"
 
 [tool.poetry.group.dev.dependencies]
 isort = "^5.13.2"
-black = "^23.3.0"
-ruff = "^0.6.2"
+black = "^24.0.0"
+ruff = "^0.7.0"
 mypy = "^1.11.2"
 pylint = "^3.3.1"
 
