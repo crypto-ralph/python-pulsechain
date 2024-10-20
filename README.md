@@ -93,7 +93,7 @@ except PulseChainAPIException as e:
 ```
 
 ## License
-This project is licensed under the MIT License. See the LICENSE file for more details.
+This project is licensed under the GPL-3.0 License. See the LICENSE file for more details.
 
 ## Contributing
 Contributions are welcome! Please feel free to open issues or submit pull requests to enhance the client.
