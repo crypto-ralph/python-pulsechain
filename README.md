@@ -11,7 +11,7 @@ This project is a Python client for interacting with the PulseChain Scanner API.
 - Easy configuration and usage.
 
 ## Documentation
-Full documentation is available at [Read the Docs](https://yourprojectname.readthedocs.io).
+Full documentation is available at [Read the Docs](https://python-pulsechain.readthedocs.io/en/latest/).
 
 ## Installation
 To use the PulseChain API client, you need Python 3.10 or higher. You can install the necessary dependencies by running:
